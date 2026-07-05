@@ -1,13 +1,17 @@
 import os
 import sys
 from io import BytesIO
-from PIL import Image
+
+try:
+    from PIL import Image
+except ImportError as exc:
+    raise ImportError("Pillow is required to run this script. Install it with 'pip install Pillow'.") from exc
 
 from prompts import AUDIT_PROMPT
 import gemini_service
 
 # Caminho da imagem (edite conforme necessário)
-IMAGE_PATH = "images/preview.jpg"
+IMAGE_PATH = "images/imagem-gado.jpg"
 
 
 def load_image(path: str) -> bytes:
