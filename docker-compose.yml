@@ -1,0 +1,15 @@
+# Uso: docker compose run --rm agroaudit images/imagem-gado.jpg
+#
+# O env_file carrega a chave do .env em tempo de execução (não fica
+# gravada na imagem). Os volumes fazem 'images' e 'output' apontarem
+# para as pastas reais do seu computador, então:
+# - você pode adicionar novas imagens em ./images sem rebuildar a imagem;
+# - os dossiês gerados em /app/output aparecem em ./output no seu PC.
+services:
+  agroaudit:
+    build: .
+    env_file:
+      - .env
+    volumes:
+      - ./images:/app/images
+      - ./output:/app/output

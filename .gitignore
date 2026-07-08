@@ -1,0 +1,19 @@
+# Segredos — nunca commitar a chave de API
+.env
+
+# Ambientes virtuais
+.venv/
+venv/
+env/
+
+# Cache e artefatos do Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Saída gerada pelo programa (dossiês de vistoria)
+output/
+
+# Editor / SO
+.DS_Store
+.vscode/

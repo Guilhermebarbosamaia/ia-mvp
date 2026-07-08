@@ -1,0 +1,21 @@
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+
+# Segredos — nunca vão para dentro da imagem
+.env
+
+# Saída local (o container usa seu próprio /app/output, montado como volume)
+output/
+
+# Controle de versão e editor
+.git/
+.gitignore
+.vscode/
+
+# Documentação e testes — não são necessários dentro da imagem
+README.md
+_smoke_test.py
