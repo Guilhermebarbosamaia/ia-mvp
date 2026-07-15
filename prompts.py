@@ -15,7 +15,7 @@ ANOMALY_CATEGORIES = [
     "degradacao_pasto",
     "erosao_solo",
     "solo_exposto",
-    "invasao_area_protegida",
+    "supressao_vegetal_area_marginal",
     "corpo_dagua_alterado",
     "estrutura_danificada",
     "ausencia_gado",
@@ -71,7 +71,6 @@ Analise a imagem fornecida e retorne APENAS um JSON válido, sem texto adicional
     }}
   ],
   "aptidao_garantia": {{
-    "score": número de 0 a 100,
     "classificacao": "apto" | "apto com ressalvas" | "inapto" | "indeterminado",
     "justificativa": string citando especificamente o que foi observado,
     "campos_nao_identificaveis": número

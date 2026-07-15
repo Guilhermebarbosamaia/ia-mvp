@@ -1,7 +1,7 @@
 """Ponto de entrada do MVP: recebe uma imagem aérea e gera um dossiê de auditoria.
 
 Uso:
-    python main.py [caminho_da_imagem] [--propriedade-id ID] [--talhao-id ID] [--no-save]
+    python main.py [caminho_da_imagem] [--propriedade-id ID] [--talhao-id ID] [--no-save] [--no-pdf]
 
 Requer a variável de ambiente GEMINI_API_KEY (pode vir de um arquivo .env).
 """
@@ -24,8 +24,9 @@ except ImportError as exc:
 
 from prompts import AUDIT_PROMPT
 from gemini_service import analyze_image, GeminiAnalysisError
+from report import gerar_pdf, VistoriaValidationError
 
-DEFAULT_IMAGE_PATH = "images/imagem-gado.jpg"
+DEFAULT_IMAGE_PATH = "images/01_aerea_unidade_industrial_silos_as_margens_do_rio.jpeg"
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 MAX_IMAGE_MB = 20
 OUTPUT_DIR = Path("output")
@@ -54,7 +55,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--no-save",
         action="store_true",
-        help="Não salvar o dossiê em disco; apenas exibir no terminal.",
+        help="Não salvar o dossiê em disco (nem .json nem .pdf); apenas exibir no terminal.",
+    )
+    parser.add_argument(
+        "--no-pdf",
+        action="store_true",
+        help="Salvar apenas o .json; não gerar o .pdf (útil se o WeasyPrint não estiver instalado).",
     )
     return parser.parse_args()
 
@@ -174,6 +180,23 @@ def main() -> None:
     if not args.no_save:
         out_path = save_dossie(dossie)
         print(f"\nDossiê salvo em: {out_path}")
+
+        if not args.no_pdf:
+            pdf_path = OUTPUT_DIR / f"{dossie['vistoria_id']}.pdf"
+            try:
+                gerar_pdf(dossie, pdf_path)
+                print(f"Relatório em PDF salvo em: {pdf_path}")
+            except VistoriaValidationError as exc:
+                print(f"\nAVISO: o PDF não foi gerado (JSON de vistoria incompleto/inválido): {exc}")
+            except ImportError:
+                print(
+                    "\nAVISO: o PDF não foi gerado porque o WeasyPrint (ou suas dependências de "
+                    "sistema — pango, cairo, gdk-pixbuf) não está instalado. O .json foi salvo "
+                    "normalmente. Veja README.md para instruções de instalação, ou use --no-pdf "
+                    "para não tentar gerar o PDF."
+                )
+            except Exception as exc:  # noqa: BLE001 - não deixar falha de PDF derrubar o processo
+                print(f"\nAVISO: falha inesperada ao gerar o PDF: {exc}")
 
 
 if __name__ == "__main__":

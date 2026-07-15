@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Dossiê de Vistoria — {{ vistoria_id }}</title>
+<style>
+  @page {
+    size: A4;
+    margin: 22mm 18mm 22mm 18mm;
+    @bottom-center {
+      content: "Página " counter(page) " de " counter(pages);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 8pt;
+      color: #808070;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: 'IBM Plex Sans', Helvetica, Arial, sans-serif;
+    color: #2e2c28;
+    font-size: 10.5pt;
+    line-height: 1.45;
+  }
+
+  .mono { font-family: 'IBM Plex Mono', monospace; }
+
+  h1, h2, h3 { margin: 0; }
+
+  /* Avoid awkward breaks */
+  .section { margin-top: 20px; break-inside: avoid-page; }
+  .avoid-break { break-inside: avoid; }
+  table { break-inside: auto; }
+  tr { break-inside: avoid; }
+
+  /* HEADER */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 2px solid #1f1e1a;
+    padding-bottom: 12px;
+  }
+  .brand {
+    font-size: 9pt;
+    letter-spacing: 0.12em;
+    font-weight: 600;
+    color: #33506b;
+    text-transform: uppercase;
+  }
+  .doc-title {
+    font-size: 16pt;
+    font-weight: 700;
+    margin-top: 3px;
+  }
+  .doc-sub {
+    font-size: 9pt;
+    color: #6b6a60;
+    margin-top: 3px;
+  }
+  .header-ref {
+    text-align: right;
+    font-size: 8.5pt;
+    color: #6b6a60;
+    white-space: nowrap;
+  }
+
+  /* META GRID */
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px 20px;
+    margin-top: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #d8d6cc;
+  }
+  .meta-label {
+    font-size: 7.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #83816f;
+  }
+  .meta-value {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9.5pt;
+    margin-top: 2px;
+  }
+
+  /* LEGEND */
+  .legend {
+    margin-top: 14px;
+    padding: 10px 12px;
+    background: #f4f3ec;
+    border: 1px solid #e0ded2;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+  .legend-title {
+    font-size: 7.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #83816f;
+    font-weight: 600;
+  }
+  .legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 8.5pt;
+    color: #3a3830;
+  }
+
+  /* STATE DOT (three-state honesty indicator) */
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  .dot-confirmado   { background: #33506b; border: none; }
+  .dot-estimado     { background: #f1e4c8; border: 1.5px dashed #b8863f; }
+  .dot-nao_identificavel { background: transparent; border: 1px dotted #9a9888; }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 7.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+  .tag-confirmado   { color: #33506b; }
+  .tag-estimado     { color: #96702a; }
+  .tag-nao_identificavel { color: #83816f; }
+
+  /* SECTION HEADER */
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 7px;
+    border-bottom: 1px solid #1f1e1a;
+    padding-bottom: 5px;
+  }
+  .section-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 8.5pt;
+    color: #6b6a60;
+  }
+  .section-title {
+    font-size: 12pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  /* FIELD GRID (uso do solo / infraestrutura) */
+  .field-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 9px 22px;
+    margin-top: 12px;
+  }
+  .field {
+    border-bottom: 1px solid #ececE4;
+    padding-bottom: 6px;
+  }
+  .field-label {
+    font-size: 7.5pt;
+    color: #83816f;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .field-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 2px;
+  }
+  .field-value { font-size: 9.5pt; }
+
+  .callout {
+    margin-top: 10px;
+    font-size: 9pt;
+    color: #3a3830;
+    background: #f4f3ec;
+    padding: 8px 10px;
+    border-left: 2px solid #b0ad9a;
+  }
+  .callout-label {
+    font-size: 7.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #83816f;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  /* REBANHO */
+  .rebanho-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1fr;
+    gap: 14px;
+    margin-top: 12px;
+    align-items: end;
+  }
+  .rebanho-count-box {
+    padding: 12px 14px;
+    background: #f4f3ec;
+    border: 1px solid #e0ded2;
+  }
+  .rebanho-count {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 18pt;
+    font-weight: 600;
+    margin-top: 3px;
+  }
+  .rebanho-count-unit { font-size: 10pt; font-weight: 400; color: #83816f; }
+  .rebanho-margin { font-size: 8.5pt; color: #6b6a60; margin-top: 2px; }
+
+  /* TABLE */
+  table.anomalias {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 9pt;
+  }
+  table.anomalias thead tr { border-bottom: 1px solid #a9a690; }
+  table.anomalias th {
+    text-align: left;
+    padding: 5px 6px;
+    font-size: 7.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #83816f;
+    font-weight: 600;
+  }
+  table.anomalias td {
+    padding: 7px 6px;
+    vertical-align: top;
+    border-bottom: 1px solid #ececE4;
+  }
+  .chip {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 7.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 1px 6px;
+  }
+  .sev-baixa  { background: #e6e9d8; color: #4b5a2e; }
+  .sev-média  { background: #efdec0; color: #7a5420; }
+  .sev-alta   { background: #e6cdc0; color: #6b3620; }
+
+  /* APTIDÃO */
+  .aptidao-box {
+    margin-top: 12px;
+    padding: 14px 16px;
+  }
+  .aptidao-eyebrow { font-size: 7.5pt; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+  .aptidao-label { font-size: 15pt; font-weight: 700; margin-top: 3px; text-transform: uppercase; letter-spacing: 0.01em; }
+  .aptidao-just { font-size: 9.5pt; color: #2e2c28; margin-top: 8px; }
+  .aptidao-footnote {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(0,0,0,0.08);
+    font-size: 8.5pt;
+    color: #4a483e;
+  }
+  .apto                   { background: #e9edd6; border-left: 4px solid #45632e; }
+  .apto .aptidao-eyebrow, .apto .aptidao-label { color: #45632e; }
+  .apto_com_ressalvas     { background: #efdec0; border-left: 4px solid #96702a; }
+  .apto_com_ressalvas .aptidao-eyebrow, .apto_com_ressalvas .aptidao-label { color: #96702a; }
+  .inapto                 { background: #e6cdc0; border-left: 4px solid #7a3a20; }
+  .inapto .aptidao-eyebrow, .inapto .aptidao-label { color: #7a3a20; }
+  .indeterminado          { background: #ecebe3; border-left: 4px solid #83816f; }
+  .indeterminado .aptidao-eyebrow, .indeterminado .aptidao-label { color: #6b6a60; }
+
+  /* LIMITAÇÕES */
+  .limitacoes-note { margin-top: 10px; font-size: 8.5pt; color: #83816f; font-style: italic; }
+  ul.limitacoes { margin: 8px 0 0; padding: 0; list-style: none; }
+  ul.limitacoes li {
+    display: flex; gap: 6px; padding: 6px 0;
+    border-bottom: 1px solid #ececE4;
+    font-size: 9.5pt; color: #2e2c28;
+  }
+  ul.limitacoes li .dash { font-family: 'IBM Plex Mono', monospace; color: #9a9888; flex-shrink: 0; }
+
+  /* RECOMENDAÇÕES */
+  .rec-list { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+  .rec-item {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 8px 10px;
+    background: #f4f3ec;
+    border: 1px solid #e0ded2;
+  }
+  .rec-acao { font-size: 9.5pt; font-weight: 500; }
+  .rec-motivo { font-size: 8.5pt; color: #6b6a60; margin-top: 1px; }
+
+  /* FOOTER */
+  .legal-footer {
+    margin-top: 26px;
+    padding-top: 14px;
+    border-top: 2px solid #1f1e1a;
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  .legal-text {
+    font-size: 7.5pt;
+    color: #6b6a60;
+    max-width: 320px;
+  }
+  .seal-block { text-align: right; flex-shrink: 0; }
+  .seal-line {
+    width: 160px; height: 22px;
+    border-bottom: 1px solid #a9a690;
+    margin-top: 4px;
+  }
+  .seal-code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 8.5pt;
+    margin-top: 4px;
+    border: 1px solid #1f1e1a;
+    padding: 4px 7px;
+    display: inline-block;
+  }
+
+  /* Static print fallback for table controls (no JS in PDF context) */
+  .table-controls { display: none; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="brand">AgroAudit</div>
+    <div class="doc-title">Dossiê de Evidência de Vistoria Rural</div>
+    <div class="doc-sub">Documento gerado por análise de imagem aérea (drone) assistida por inteligência artificial</div>
+  </div>
+  <div class="header-ref mono">Ref. Res. CMN 5.267 / MCR 2.9</div>
+</div>
+
+<div class="meta-grid">
+  <div>
+    <div class="meta-label">ID da Vistoria</div>
+    <div class="meta-value">{{ vistoria_id }}</div>
+  </div>
+  <div>
+    <div class="meta-label">ID da Propriedade</div>
+    <div class="meta-value">{{ propriedade_id }}</div>
+  </div>
+  <div>
+    <div class="meta-label">ID do Talhão</div>
+    <div class="meta-value">{{ talhao_id }}</div>
+  </div>
+  <div>
+    <div class="meta-label">Data/Hora da Vistoria (UTC)</div>
+    <div class="meta-value">{{ data_vistoria_utc }}</div>
+  </div>
+  <div>
+    <div class="meta-label">Modelo de IA</div>
+    <div class="meta-value">{{ modelo_ia }}</div>
+  </div>
+  <div>
+    <div class="meta-label">Imagem Analisada</div>
+    <div class="meta-value">{{ imagem_analisada }}</div>
+  </div>
+</div>
+
+<div class="legend avoid-break">
+  <div class="legend-title">Legenda de confiabilidade &mdash; aplica-se ao status geral do uso do solo e ao status de cada anomalia</div>
+  <div class="legend-item"><span class="dot dot-confirmado"></span> Confirmado</div>
+  <div class="legend-item"><span class="dot dot-estimado"></span> Estimado</div>
+  <div class="legend-item"><span class="dot dot-nao_identificavel"></span> Não identificável</div>
+</div>
+
+<!-- 01 USO DO SOLO -->
+<div class="section">
+  <div class="section-head">
+    <span class="section-num">01</span>
+    <span class="section-title">Uso do Solo</span>
+  </div>
+  <div style="margin-top:12px; display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 10px; background:#f4f3ec; border:1px solid #e0ded2;">
+    <span class="field-label">Status da análise desta seção</span>
+    <span class="tag tag-{{ uso_do_solo_status_tag.estado }}">
+      <span class="dot dot-{{ uso_do_solo_status_tag.estado }}"></span>{{ uso_do_solo_status_tag.estado_label }}
+    </span>
+  </div>
+  <div class="field-grid">
+    {% for f in uso_do_solo_fields %}
+    <div class="field">
+      <div class="field-label">{{ f.label }}</div>
+      <div class="field-row">
+        <span class="field-value">{{ f.value }}</span>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% if analise.uso_do_solo.observacoes %}
+  <div class="callout">
+    <span class="callout-label">Observações</span>
+    {{ analise.uso_do_solo.observacoes }}
+  </div>
+  {% endif %}
+</div>
+
+<!-- 02 REBANHO -->
+<div class="section">
+  <div class="section-head">
+    <span class="section-num">02</span>
+    <span class="section-title">Rebanho</span>
+  </div>
+  {% if analise.rebanho.detectado %}
+  <div class="rebanho-grid">
+    <div class="rebanho-count-box">
+      <div class="field-label">Contagem estimada</div>
+      <div class="rebanho-count">&asymp; {{ analise.rebanho.contagem_estimada }} <span class="rebanho-count-unit">cabeças</span></div>
+      <div class="rebanho-margin">margem de erro &plusmn; {{ analise.rebanho.margem_de_erro }}</div>
+      <span class="tag tag-estimado" style="margin-top:8px; display:inline-flex;">
+        <span class="dot dot-estimado"></span> Estimado &mdash; não é contagem exata
+      </span>
+    </div>
+    <div>
+      <div class="field-label">Confiança do modelo</div>
+      <div class="field-value" style="margin-top:3px;">{{ analise.rebanho.confianca }}</div>
+    </div>
+    <div>
+      <div class="field-label">Distribuição</div>
+      <div class="field-value" style="margin-top:3px;">{{ analise.rebanho.distribuicao }}</div>
+    </div>
+  </div>
+  {% if analise.rebanho.comportamento %}
+  <div style="margin-top:8px; font-size:9.5pt;">
+    <span class="field-label" style="margin-right:6px;">Comportamento</span>{{ analise.rebanho.comportamento }}
+  </div>
+  {% endif %}
+  {% else %}
+  <div style="margin-top:12px; font-size:9.5pt; color:#6b6a60;">Nenhum rebanho detectado na área analisada nesta vistoria.</div>
+  {% endif %}
+</div>
+
+<!-- 03 INFRAESTRUTURA -->
+<div class="section">
+  <div class="section-head">
+    <span class="section-num">03</span>
+    <span class="section-title">Infraestrutura</span>
+  </div>
+  <div class="field-grid">
+    {% for f in infraestrutura_fields %}
+    <div class="field">
+      <div class="field-label">{{ f.label }}</div>
+      <div class="field-row">
+        <span class="field-value">{{ f.value }}</span>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% if analise.infraestrutura.condicao_geral %}
+  <div class="callout">
+    <span class="callout-label">Condição geral</span>
+    {{ analise.infraestrutura.condicao_geral }}
+  </div>
+  {% endif %}
+</div>
+
+<!-- 04 ANOMALIAS -->
+<div class="section">
+  <div class="section-head">
+    <span class="section-num">04</span>
+    <span class="section-title">Anomalias Identificadas</span>
+  </div>
+  <div class="table-controls">
+    <!-- Controles interativos (filtro/ordenação) só existem na visualização em navegador;
+         não são renderizados no PDF (WeasyPrint não executa JS). A tabela abaixo já
+         contém todas as anomalias, sempre visíveis, para garantir a defensibilidade do laudo. -->
+  </div>
+  {% if analise.anomalias %}
+  <table class="anomalias">
+    <thead>
+      <tr>
+        <th>Categoria</th>
+        <th>Descrição</th>
+        <th>Localização</th>
+        <th>Severidade</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for a in analise.anomalias %}
+      <tr>
+        <td style="font-weight:500;">{{ a.categoria }}</td>
+        <td>{{ a.descricao }}</td>
+        <td class="mono" style="color:#6b6a60;">{{ a.localizacao_aproximada }}</td>
+        <td><span class="chip sev-{{ a.severidade }}">{{ a.severidade }}</span></td>
+        <td>
+          <span class="tag tag-{{ 'confirmado' if a.status == 'confirmado' else 'estimado' }}">
+            <span class="dot dot-{{ 'confirmado' if a.status == 'confirmado' else 'estimado' }}"></span>
+            {{ 'Confirmado' if a.status == 'confirmado' else 'Indício' }}
+          </span>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div style="margin-top:12px; font-size:9.5pt; color:#6b6a60;">Nenhuma anomalia identificada nesta vistoria.</div>
+  {% endif %}
+</div>
+
+<!-- 05 APTIDÃO COMO GARANTIA -->
+<div class="section">
+  <div class="section-head">
+    <span class="section-num">05</span>
+    <span class="section-title">Aptidão como Garantia</span>
+  </div>
+  <div class="aptidao-box avoid-break {{ aptidao_css_class }}">
+    <div class="aptidao-eyebrow">Classificação qualitativa &mdash; não é score numérico</div>
+    <div class="aptidao-label">{{ analise.aptidao_garantia.classificacao }}</div>
+    <div class="aptidao-just">{{ analise.aptidao_garantia.justificativa }}</div>
+    <div class="aptidao-footnote">
+      <strong>{{ analise.aptidao_garantia.campos_nao_identificaveis }}</strong> campo(s) desta vistoria não puderam ser identificados com confiança e estão listados na seção de Limitações.
+    </div>
+  </div>
+</div>
+
+<!-- 06 LIMITAÇÕES -->
+<div class="section">
+  <div class="section-head">
+    <span class="section-num">06</span>
+    <span class="section-title">Limitações da Análise</span>
+  </div>
+  <div class="limitacoes-note">Esta seção é parte integrante do laudo e não pode ser omitida na leitura do documento.</div>
+  <ul class="limitacoes">
+    {% for lim in analise.limitacoes_da_analise %}
+    <li><span class="dash">&mdash;</span><span>{{ lim }}</span></li>
+    {% endfor %}
+  </ul>
+</div>
+
+<!-- 07 RECOMENDAÇÕES -->
+<div class="section">
+  <div class="section-head">
+    <span class="section-num">07</span>
+    <span class="section-title">Recomendações do Auditor</span>
+  </div>
+  <div class="rec-list">
+    {% for r in analise.recomendacoes_auditor %}
+    <div class="rec-item avoid-break">
+      <span class="chip sev-{{ r.urgencia }}" style="flex-shrink:0; margin-top:1px;">{{ r.urgencia }}</span>
+      <div>
+        <div class="rec-acao">{{ r.acao }}</div>
+        <div class="rec-motivo">{{ r.motivo }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- LEGAL FOOTER -->
+<div class="legal-footer avoid-break">
+  <div class="legal-text">
+    Documento gerado automaticamente a partir de análise de imagem por sistema de inteligência artificial.
+    Os campos declarados como "estimado" ou "não identificável" não constituem afirmação de fato e devem
+    ser interpretados conforme sua classificação de confiabilidade. Este dossiê constitui evidência técnica
+    de apoio e não substitui, isoladamente, laudo de vistoria presencial quando exigido por norma ou contrato.
+  </div>
+  <div class="seal-block">
+    <div class="meta-label">Instituição solicitante</div>
+    <div class="seal-line"></div>
+    <div class="meta-label" style="margin-top:10px;">Selo de autenticidade</div>
+    <div class="seal-code">{{ vistoria_id }} &middot; {{ hash_selo }}</div>
+  </div>
+</div>
+
+</body>
+</html>

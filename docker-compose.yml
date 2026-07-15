@@ -1,4 +1,4 @@
-# Uso: docker compose run --rm agroaudit images/imagem-gado.jpg
+# Uso: docker compose run --rm agroaudit images/01_aerea_unidade_industrial_silos_as_margens_do_rio.jpeg
 #
 # O env_file carrega a chave do .env em tempo de execução (não fica
 # gravada na imagem). Os volumes fazem 'images' e 'output' apontarem

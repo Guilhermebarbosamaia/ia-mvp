@@ -45,18 +45,18 @@ Trocar a chave no `.env` não exige rebuild (veja a seção 4).
 
 Linux/macOS (bash/zsh):
 ```bash
-docker run --rm --env-file .env -v "$(pwd)/output:/app/output" agroaudit images/imagem-gado.jpg
+docker run --rm --env-file .env -v "$(pwd)/output:/app/output" agroaudit images/01_aerea_unidade_industrial_silos_as_margens_do_rio.jpeg
 ```
 
 Windows (PowerShell):
 ```powershell
-docker run --rm --env-file .env -v "${PWD}/output:/app/output" agroaudit images/imagem-gado.jpg
+docker run --rm --env-file .env -v "${PWD}/output:/app/output" agroaudit images/01_aerea_unidade_industrial_silos_as_margens_do_rio.jpeg
 ```
 
 Com Podman no Linux, se aparecer erro de permissão ao escrever no volume,
 adicione o sufixo `:Z` (relacionado ao SELinux — não existe no Windows/macOS):
 ```bash
-podman run --rm --env-file .env -v "$(pwd)/output:/app/output:Z" agroaudit images/imagem-gado.jpg
+podman run --rm --env-file .env -v "$(pwd)/output:/app/output:Z" agroaudit images/01_aerea_unidade_industrial_silos_as_margens_do_rio.jpeg
 ```
 
 O que cada parte do comando faz:
@@ -67,7 +67,7 @@ O que cada parte do comando faz:
 | `--env-file .env` | injeta a `GEMINI_API_KEY` na hora de rodar, sem gravá-la na imagem |
 | `-v "...:/app/output"` | espelha a pasta `output/` do container para uma pasta real no seu PC, para os dossiês sobreviverem depois que o container é removido |
 | `agroaudit` | nome da imagem que você buildou no passo 1 |
-| `images/imagem-gado.jpg` | argumento passado direto para o `main.py` dentro do container |
+| `images/01_aerea_unidade_industrial_silos_as_margens_do_rio.jpeg` | argumento passado direto para o `main.py` dentro do container |
 
 Para analisar outra imagem, só troque o último argumento:
 ```bash
@@ -91,18 +91,18 @@ automaticamente, então você não precisa digitar os `-v` toda vez.
 
 Com Docker:
 ```bash
-docker compose run --rm agroaudit images/imagem-gado.jpg
+docker compose run --rm agroaudit images/01_aerea_unidade_industrial_silos_as_margens_do_rio.jpeg
 ```
 
 Com Podman (versão 4.x+, que já traz `compose` embutido):
 ```bash
-podman compose run --rm agroaudit images/imagem-gado.jpg
+podman compose run --rm agroaudit images/01_aerea_unidade_industrial_silos_as_margens_do_rio.jpeg
 ```
 
 Se seu Podman não tiver o subcomando `compose`, instale o `podman-compose`
 separadamente e use:
 ```bash
-podman-compose run --rm agroaudit images/imagem-gado.jpg
+podman-compose run --rm agroaudit images/01_aerea_unidade_industrial_silos_as_margens_do_rio.jpeg
 ```
 
 ## 3. Onde ficam os resultados
