@@ -9,6 +9,7 @@ Requer a variável de ambiente GEMINI_API_KEY (pode vir de um arquivo .env).
 import argparse
 import json
 import os
+import re
 import sys
 import uuid
 from datetime import datetime, timezone
@@ -44,12 +45,12 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--propriedade-id",
-        default="NAO_INFORMADO",
+        default="Não informado",
         help="Identificador estável da propriedade, para rastreamento futuro (opcional).",
     )
     parser.add_argument(
         "--talhao-id",
-        default="NAO_INFORMADO",
+        default="Não informado",
         help="Identificador do talhão/área específica inspecionada (opcional).",
     )
     parser.add_argument(
@@ -124,6 +125,20 @@ def build_dossie(analise: dict, image_path: Path, propriedade_id: str, talhao_id
     }
 
 
+def nome_arquivo_pdf(dossie: dict) -> str:
+    """Deriva um nome de arquivo legível para o PDF: data + nome da imagem
+    original + sufixo curto (para não sobrescrever se a mesma foto for
+    analisada mais de uma vez). O .json continua salvo como <vistoria_id>.json
+    — só o PDF, que é o documento pensado para ser aberto/compartilhado por
+    humanos, ganha esse nome mais descritivo.
+    """
+    data_str = dossie["data_vistoria_utc"][:10].replace("-", "")
+    imagem_stem = Path(dossie.get("imagem_analisada") or "vistoria").stem
+    imagem_stem = re.sub(r"[^a-zA-Z0-9_-]+", "_", imagem_stem).strip("_") or "vistoria"
+    sufixo = dossie["vistoria_id"].rsplit("-", 1)[-1]
+    return f"{data_str}_{imagem_stem}_{sufixo}.pdf"
+
+
 def print_dossie(dossie: dict) -> None:
     print("=========================")
     print("RELATÓRIO DA IA")
@@ -182,7 +197,7 @@ def main() -> None:
         print(f"\nDossiê salvo em: {out_path}")
 
         if not args.no_pdf:
-            pdf_path = OUTPUT_DIR / f"{dossie['vistoria_id']}.pdf"
+            pdf_path = OUTPUT_DIR / nome_arquivo_pdf(dossie)
             try:
                 gerar_pdf(dossie, pdf_path)
                 print(f"Relatório em PDF salvo em: {pdf_path}")

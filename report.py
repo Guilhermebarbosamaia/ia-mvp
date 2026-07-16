@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import hashlib
 import os
+import re
 from pathlib import Path
 from typing import Any
 
@@ -51,13 +52,28 @@ class VistoriaValidationError(ValueError):
     """Levantado quando o JSON de entrada não atende ao schema mínimo esperado."""
 
 
+def humanizar(value: Any) -> Any:
+    """Formata um valor cru do schema (categorias/enums em minúsculo ou
+    snake_case, ex.: 'solo_exposto', 'sim', 'boa') para exibição: troca
+    underscore por espaço e garante a primeira letra maiúscula. Não altera
+    valores que não sejam string (None, número, etc. passam direto), nem o
+    travessão "—" usado como placeholder de campo vazio.
+    """
+    if not isinstance(value, str) or not value or value == "—":
+        return value
+    texto = value.replace("_", " ")
+    return texto[0].upper() + texto[1:]
+
+
 def _get_env() -> Environment:
-    return Environment(
+    env = Environment(
         loader=FileSystemLoader(str(TEMPLATES_DIR)),
         autoescape=select_autoescape(["html", "xml"]),
         trim_blocks=True,
         lstrip_blocks=True,
     )
+    env.filters["humanizar"] = humanizar
+    return env
 
 
 def _estado(value: str | None) -> str:
@@ -76,7 +92,7 @@ def _campo(label: str, value: Any, estado: str | None) -> dict:
     Usado apenas onde o schema real traz um indicador de confiabilidade próprio
     (hoje: analise.uso_do_solo.status)."""
     est = _estado(estado)
-    display_value = value if value not in (None, "") else "—"
+    display_value = humanizar(value) if value not in (None, "") else "—"
     return {
         "label": label,
         "value": display_value,
@@ -89,7 +105,7 @@ def _campo_simples(label: str, value: Any) -> dict:
     """Campo de exibição sem tag de confiabilidade — para dados que o schema
     real não acompanha de um indicador de confiança próprio (ex.: cobertura
     vegetal, cercas). NUNCA fabrique um estado aqui."""
-    display_value = value if value not in (None, "") else "—"
+    display_value = humanizar(value) if value not in (None, "") else "—"
     return {"label": label, "value": display_value}
 
 

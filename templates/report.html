@@ -86,6 +86,8 @@
     font-family: 'IBM Plex Mono', monospace;
     font-size: 9.5pt;
     margin-top: 2px;
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
 
   /* LEGEND */
@@ -430,16 +432,16 @@
     </div>
     <div>
       <div class="field-label">Confiança do modelo</div>
-      <div class="field-value" style="margin-top:3px;">{{ analise.rebanho.confianca }}</div>
+      <div class="field-value" style="margin-top:3px;">{{ analise.rebanho.confianca | humanizar }}</div>
     </div>
     <div>
       <div class="field-label">Distribuição</div>
-      <div class="field-value" style="margin-top:3px;">{{ analise.rebanho.distribuicao }}</div>
+      <div class="field-value" style="margin-top:3px;">{{ analise.rebanho.distribuicao | humanizar }}</div>
     </div>
   </div>
   {% if analise.rebanho.comportamento %}
   <div style="margin-top:8px; font-size:9.5pt;">
-    <span class="field-label" style="margin-right:6px;">Comportamento</span>{{ analise.rebanho.comportamento }}
+    <span class="field-label" style="margin-right:6px;">Comportamento</span>{{ analise.rebanho.comportamento | humanizar }}
   </div>
   {% endif %}
   {% else %}
@@ -466,7 +468,7 @@
   {% if analise.infraestrutura.condicao_geral %}
   <div class="callout">
     <span class="callout-label">Condição geral</span>
-    {{ analise.infraestrutura.condicao_geral }}
+    {{ analise.infraestrutura.condicao_geral | humanizar }}
   </div>
   {% endif %}
 </div>
@@ -496,10 +498,10 @@
     <tbody>
       {% for a in analise.anomalias %}
       <tr>
-        <td style="font-weight:500;">{{ a.categoria }}</td>
+        <td style="font-weight:500;">{{ a.categoria | humanizar }}</td>
         <td>{{ a.descricao }}</td>
         <td class="mono" style="color:#6b6a60;">{{ a.localizacao_aproximada }}</td>
-        <td><span class="chip sev-{{ a.severidade }}">{{ a.severidade }}</span></td>
+        <td><span class="chip sev-{{ a.severidade }}">{{ a.severidade | humanizar }}</span></td>
         <td>
           <span class="tag tag-{{ 'confirmado' if a.status == 'confirmado' else 'estimado' }}">
             <span class="dot dot-{{ 'confirmado' if a.status == 'confirmado' else 'estimado' }}"></span>
@@ -554,7 +556,7 @@
   <div class="rec-list">
     {% for r in analise.recomendacoes_auditor %}
     <div class="rec-item avoid-break">
-      <span class="chip sev-{{ r.urgencia }}" style="flex-shrink:0; margin-top:1px;">{{ r.urgencia }}</span>
+      <span class="chip sev-{{ r.urgencia }}" style="flex-shrink:0; margin-top:1px;">{{ r.urgencia | humanizar }}</span>
       <div>
         <div class="rec-acao">{{ r.acao }}</div>
         <div class="rec-motivo">{{ r.motivo }}</div>
